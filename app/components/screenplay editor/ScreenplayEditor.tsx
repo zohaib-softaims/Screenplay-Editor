@@ -22,14 +22,17 @@ export default function ScreenplayEditor() {
   const { value, setValue,setCurrentSelectedLine,suggestion,setSuggestion,currentSelectedLine } = useScreenplayStore(); 
   const [loading, setLoading] = useState(true); 
   useEffect(() => {
-    const savedValue = localStorage.getItem("screenplay");
-    if (savedValue) {
-      setValue(JSON.parse(savedValue));
-    }else{
-      setValue(defaultValue)
+    if (typeof window !== "undefined") {
+      const savedValue = localStorage.getItem("screenplay");
+      if (savedValue) {
+        setValue(JSON.parse(savedValue));
+      } else {
+        setValue(defaultValue);
+      }
+      setLoading(false);
     }
-    setLoading(false); 
-  }, []); 
+  }, []);
+  
 
   useEffect(() => {
     if (!loading) {
@@ -93,11 +96,13 @@ const acceptSuggestion = () => {
 
   const renderElement = useCallback((props: any) => <Element {...props} />, []);
 
-
+if(loading){
+  return null
+}
   return (
-    <div className="bg-slate-600 p-6 sm:p-8 rounded-3xl shadow-xl max-w-4xl mx-auto relative border border-gray-300">
+    <div className="bg-transparent p-6 sm:p-8 rounded-3xl max-w-4xl mx-auto relative">
     <Slate editor={editor} initialValue={value} onChange={handleChange}>
-    <div className="flex  justify-center items-center gap-3 px-4 py-3 bg-slate-800">
+    <div className="mb-4 bg-slate-900 flex justify-center items-center gap-3 px-4 py-3 bg-slate-800">
   <BlockButton type="scene_heading" icon={<Film size={18} />} >Scene</BlockButton>
   <BlockButton type="action" icon={<BookOpen size={18} />} >Action</BlockButton>
   <BlockButton type="character" icon={<User size={18} />} >Character</BlockButton>
@@ -109,8 +114,8 @@ const acceptSuggestion = () => {
   placeholder="Start writing your screenplay..."
   spellCheck
   autoFocus
-  className="min-h-[300px] p-5 text-[15px] font-mono focus:outline-none focus:ring-2 focus:ring-slate-9000
-    bg-slate-900 text-slate-200 placeholder-slate-400 rounded-b-2xl"
+  className="min-h-[350px] p-5 text-[15px] font-mono focus:outline-none focus:ring-2 focus:ring-slate-900
+    bg-slate-900 text-slate-200 placeholder-slate-400"
 />
   
       {suggestion && (
