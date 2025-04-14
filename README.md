@@ -36,7 +36,7 @@ npm (v7.x or higher) or yarn (v1.x or higher)
 First, clone the repository to your local machine:
 
 ```bash
-  git clone https://github.com/zohaib-softaims/screenplay-editor.git
+  git clone https://github.com/zohaib-softaims/Screenplay-Editor.git
 ```
     
 Navigate into your project directory and install the dependencies:
