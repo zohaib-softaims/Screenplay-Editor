@@ -8,7 +8,7 @@ export default function SuggestionPopup({
     onDismiss: () => void;
   }) {
     return (
-      <div className="fixed top-28 right-10 bg-white border border-gray-200 p-4 rounded shadow-md w-[260px] z-50">
+      <div className="text-white fixed top-28 right-10 bg-slate-900 border border-slate-700 p-4 rounded shadow-md w-[260px] z-50">
         <p className="text-sm mb-2">
           💡 Suggestion:{" "}
           <span className="font-semibold">{suggestion.suggestion}</span>
@@ -22,7 +22,7 @@ export default function SuggestionPopup({
           </button>
           <button
             onClick={onDismiss}
-            className="bg-gray-200 px-3 py-1 text-sm rounded"
+            className="text-black bg-gray-200 px-3 py-1 text-sm rounded"
           >
             Dismiss
           </button>
