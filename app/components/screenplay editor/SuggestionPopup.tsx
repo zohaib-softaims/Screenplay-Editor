@@ -1,0 +1,33 @@
+export default function SuggestionPopup({
+    suggestion,
+    onAccept,
+    onDismiss,
+  }: {
+    suggestion: any;
+    onAccept: () => void;
+    onDismiss: () => void;
+  }) {
+    return (
+      <div className="fixed top-28 right-10 bg-white border border-gray-200 p-4 rounded shadow-md w-[260px] z-50">
+        <p className="text-sm mb-2">
+          💡 Suggestion:{" "}
+          <span className="font-semibold">{suggestion.suggestion}</span>
+        </p>
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={onAccept}
+            className="bg-blue-600 text-white px-3 py-1 text-sm rounded"
+          >
+            Accept
+          </button>
+          <button
+            onClick={onDismiss}
+            className="bg-gray-200 px-3 py-1 text-sm rounded"
+          >
+            Dismiss
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
