@@ -15,10 +15,9 @@ import { formatSceneHeading } from "../../utils/formatSceneHeading";
 import useScreenSize from "../../hooks/useScreenSize";
 
 const ScreenplayEditor = () => {
-  const { value, setValue, setCurrentSelectedLine, suggestion, setSuggestion, hasHydrated } = useScreenplayStore();
+  const { value, setValue, setCurrentSelectedLine, suggestion, setSuggestion, hasHydrated, currentSelectedLine } = useScreenplayStore();
   const editor = useMemo(() => withHistory(withReact(createEditor() as CustomEditor)), []);
   const isSmallScreen = useScreenSize(1000);
-
   const handleChange = (newValue: Descendant[]) => {
     setValue(newValue);
     let foundSuggestion = false;
@@ -94,6 +93,9 @@ const ScreenplayEditor = () => {
           e.preventDefault();
           alert("Page Ended!!!");
         }
+      }
+      if (e.key == "Enter" && !currentSelectedLine?.text) {
+        e.preventDefault();
       }
     }
   };
