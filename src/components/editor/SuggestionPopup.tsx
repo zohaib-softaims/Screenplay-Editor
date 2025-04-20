@@ -1,6 +1,6 @@
 import { SuggestionPopupProps } from "@/src/types/suggestionPopupTypes";
 
-export default function SuggestionPopup({ suggestion, onAccept, onDismiss }: SuggestionPopupProps) {
+const SuggestionPopup = ({ suggestion, onAccept, onDismiss }: SuggestionPopupProps) => {
   return (
     <div className="text-white fixed top-28 right-10 bg-slate-900 border border-slate-700 p-4 rounded shadow-md w-[260px] z-50">
       <p className="text-sm mb-2">
@@ -16,4 +16,6 @@ export default function SuggestionPopup({ suggestion, onAccept, onDismiss }: Sug
       </div>
     </div>
   );
-}
+};
+
+export default SuggestionPopup;

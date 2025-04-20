@@ -2,7 +2,7 @@ import React from "react";
 import { ScreenplayElementProps, ScreenplayElement } from "@/src/types/editorTypes";
 import { elementConfig } from "@/src/config/screenplayElementConfig";
 
-export default function Element({ attributes, children, element }: ScreenplayElementProps) {
+const Element = ({ attributes, children, element }: ScreenplayElementProps) => {
   const { type } = element as ScreenplayElement;
   const config = elementConfig[type as keyof typeof elementConfig];
   const { tag: Tag, className } = config;
@@ -12,4 +12,6 @@ export default function Element({ attributes, children, element }: ScreenplayEle
       {children}
     </Tag>
   );
-}
+};
+
+export default Element;

@@ -2,10 +2,12 @@ import { Transforms, Element as SlateElement } from "slate";
 import { useSlate } from "slate-react";
 import { useScreenplayStore } from "@/src/store/useScreenplayStore";
 import { ReactNode } from "react";
-export default function BlockButton({ type, children, icon }: { type: string; children: string; icon: ReactNode }) {
+
+const BlockButton = ({ type, children, icon }: { type: string; children: string; icon: ReactNode }) => {
   const editor = useSlate();
   const { currentSelectedLine } = useScreenplayStore();
   const isSelected = type == currentSelectedLine?.type || false;
+
   return (
     <button
       onMouseDown={(e) => {
@@ -23,4 +25,6 @@ export default function BlockButton({ type, children, icon }: { type: string; ch
       <span>{children}</span>
     </button>
   );
-}
+};
+
+export default BlockButton;

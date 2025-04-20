@@ -13,7 +13,7 @@ import { CustomEditor, ScreenplayElement } from "@/src/types/editorTypes";
 import Loader from "../global/Loader";
 import { formatSceneHeading } from "@/src/utils/formatSceneHeading";
 
-export default function ScreenplayEditor() {
+const ScreenplayEditor = () => {
   const { value, setValue, setCurrentSelectedLine, suggestion, setSuggestion, hasHydrated } = useScreenplayStore();
   const editor = useMemo(() => withHistory(withReact(createEditor() as CustomEditor)), []);
 
@@ -106,12 +106,8 @@ export default function ScreenplayEditor() {
               spellCheck
               autoFocus
               className="
-             w-[8.5in] h-[11in] 
-    p-[1in] font-[Courier] text-[12pt] leading-[1.5] 
-    whitespace-pre-wrap overflow-hidden
-    focus:outline-none focus:ring-2 focus:ring-slate-900
-    bg-slate-900 text-slate-200 placeholder-slate-400
-  "
+             w-[8.5in] h-[11in] p-[1in] font-[Courier] text-[12pt] leading-[1.5] whitespace-pre-wrap overflow-hidden
+             focus:outline-none focus:ring-2 focus:ring-slate-900 bg-slate-900 text-slate-200 placeholder-slate-400"
             />
 
             {suggestion && <SuggestionPopup suggestion={suggestion} onAccept={acceptSuggestion} onDismiss={() => setSuggestion(null)} />}
@@ -122,4 +118,6 @@ export default function ScreenplayEditor() {
       )}
     </>
   );
-}
+};
+
+export default ScreenplayEditor;
