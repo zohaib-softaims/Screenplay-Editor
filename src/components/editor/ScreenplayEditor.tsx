@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { createEditor, Transforms, Editor, Node, Path, Descendant } from "slate";
 import { Slate, Editable, withReact, RenderElementProps } from "slate-react";
 import { withHistory } from "slate-history";
@@ -7,15 +7,17 @@ import { Film, User, MessageSquare, BookOpen } from "lucide-react";
 import BlockButton from "./BlockButton";
 import Element from "./Element";
 import SuggestionPopup from "./SuggestionPopup";
-import { predefinedSuggestions } from "@/src/data/predefinedSuggestions";
-import { useScreenplayStore } from "@/src/store/useScreenplayStore";
-import { CustomEditor, ScreenplayElement } from "@/src/types/editorTypes";
+import { predefinedSuggestions } from "../../constants/predefinedSuggestions";
+import { useScreenplayStore } from "../../store/useScreenplayStore";
+import { CustomEditor, ScreenplayElement } from "../../types/editorTypes";
 import Loader from "../global/Loader";
-import { formatSceneHeading } from "@/src/utils/formatSceneHeading";
+import { formatSceneHeading } from "../../utils/formatSceneHeading";
+import useScreenSize from "../../hooks/useScreenSize";
 
 const ScreenplayEditor = () => {
   const { value, setValue, setCurrentSelectedLine, suggestion, setSuggestion, hasHydrated } = useScreenplayStore();
   const editor = useMemo(() => withHistory(withReact(createEditor() as CustomEditor)), []);
+  const isSmallScreen = useScreenSize(1000);
 
   const handleChange = (newValue: Descendant[]) => {
     setValue(newValue);
@@ -81,40 +83,68 @@ const ScreenplayEditor = () => {
     return <Element {...props} element={element} />;
   }, []);
 
+  const editableRef = useRef(null);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
+    const editor = editableRef.current;
+    if (editor) {
+      const { scrollHeight, clientHeight } = editor;
+      if (scrollHeight > clientHeight) {
+        if (e.key !== "Backspace" && e.key !== "Delete") {
+          e.preventDefault();
+          alert("Page Ended!!!");
+        }
+      }
+    }
+  };
+
   return (
     <>
-      {hasHydrated ? (
-        <div className="bg-transparent flex flex-col justify-center items-center">
-          <Slate editor={editor} initialValue={value} onChange={handleChange}>
-            <div className="w-[8.5in] mb-4 bg-slate-900 flex justify-center items-center gap-3 px-4 py-3">
-              <BlockButton type="scene_heading" icon={<Film size={18} />}>
-                Scene
-              </BlockButton>
-              <BlockButton type="action" icon={<BookOpen size={18} />}>
-                Action
-              </BlockButton>
-              <BlockButton type="character" icon={<User size={18} />}>
-                Character
-              </BlockButton>
-              <BlockButton type="dialogue" icon={<MessageSquare size={18} />}>
-                Dialogue
-              </BlockButton>
-            </div>
-
-            <Editable
-              renderElement={renderElement}
-              spellCheck
-              autoFocus
-              className="
-             w-[8.5in] h-[11in] p-[1in] font-[Courier] text-[12pt] leading-[1.5] whitespace-pre-wrap overflow-hidden
-             focus:outline-none focus:ring-2 focus:ring-slate-900 bg-slate-900 text-slate-200 placeholder-slate-400"
-            />
-
-            {suggestion && <SuggestionPopup suggestion={suggestion} onAccept={acceptSuggestion} onDismiss={() => setSuggestion(null)} />}
-          </Slate>
+      {isSmallScreen ? (
+        <div className="bg-slate-900 text-center text-white p-10 w-full ">
+          <h2 className="text-xl font-bold">Your screen size is too small for editing</h2>
+          <p>Please increase the window size for a better editing experience.</p>
         </div>
       ) : (
-        <Loader />
+        <>
+          {hasHydrated ? (
+            <div className="bg-transparent flex flex-col justify-center items-center">
+              <Slate editor={editor} initialValue={value} onChange={handleChange}>
+                <div className="w-[8.5in] mb-4 bg-slate-900 flex justify-center items-center gap-3 px-4 py-3">
+                  <BlockButton type="scene_heading" icon={<Film size={18} />}>
+                    Scene
+                  </BlockButton>
+                  <BlockButton type="action" icon={<BookOpen size={18} />}>
+                    Action
+                  </BlockButton>
+                  <BlockButton type="character" icon={<User size={18} />}>
+                    Character
+                  </BlockButton>
+                  <BlockButton type="dialogue" icon={<MessageSquare size={18} />}>
+                    Dialogue
+                  </BlockButton>
+                </div>
+
+                <Editable
+                  ref={editableRef}
+                  onKeyDown={handleKeyDown}
+                  renderElement={renderElement}
+                  spellCheck
+                  autoFocus
+                  className="
+                    w-[8.5in] h-[11in] p-[1in] font-[Courier] text-[12pt] leading-[1.5] 
+                    whitespace-pre-wrap overflow-hidden
+                    focus:outline-none focus:ring-2 focus:ring-slate-900 bg-slate-900 text-slate-200 placeholder-slate-400
+                  "
+                />
+
+                {suggestion && <SuggestionPopup suggestion={suggestion} onAccept={acceptSuggestion} onDismiss={() => setSuggestion(null)} />}
+              </Slate>
+            </div>
+          ) : (
+            <Loader />
+          )}
+        </>
       )}
     </>
   );

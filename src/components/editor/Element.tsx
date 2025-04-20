@@ -1,6 +1,6 @@
 import React from "react";
-import { ScreenplayElementProps, ScreenplayElement } from "@/src/types/editorTypes";
-import { elementConfig } from "@/src/config/screenplayElementConfig";
+import { ScreenplayElementProps, ScreenplayElement } from "../../types/editorTypes";
+import { elementConfig } from "../../config/screenplayElementConfig";
 
 const Element = ({ attributes, children, element }: ScreenplayElementProps) => {
   const { type } = element as ScreenplayElement;

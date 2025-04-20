@@ -1,4 +1,4 @@
-import { SuggestionPopupProps } from "@/src/types/suggestionPopupTypes";
+import { SuggestionPopupProps } from "../../types/suggestionPopupTypes";
 
 const SuggestionPopup = ({ suggestion, onAccept, onDismiss }: SuggestionPopupProps) => {
   return (

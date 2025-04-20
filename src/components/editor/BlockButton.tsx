@@ -1,6 +1,6 @@
 import { Transforms, Element as SlateElement } from "slate";
 import { useSlate } from "slate-react";
-import { useScreenplayStore } from "@/src/store/useScreenplayStore";
+import { useScreenplayStore } from "../../store/useScreenplayStore";
 import { ReactNode } from "react";
 
 const BlockButton = ({ type, children, icon }: { type: string; children: string; icon: ReactNode }) => {
