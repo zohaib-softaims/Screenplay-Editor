@@ -11,6 +11,7 @@ import { predefinedSuggestions } from "@/src/data/predefinedSuggestions";
 import { useScreenplayStore } from "@/src/store/useScreenplayStore";
 import { CustomEditor, ScreenplayElement } from "@/src/types/editorTypes";
 import Loader from "../global/Loader";
+import { formatSceneHeading } from "@/src/utils/formatSceneHeading";
 
 export default function ScreenplayEditor() {
   const { value, setValue, setCurrentSelectedLine, suggestion, setSuggestion, hasHydrated } = useScreenplayStore();
@@ -25,9 +26,17 @@ export default function ScreenplayEditor() {
       const trimmedText = textContent.trim();
 
       if (node.type === "scene_heading") {
-        const randomIndex = Math.floor(Math.random() * predefinedSuggestions.length);
-        const sceneSuggestion = predefinedSuggestions[randomIndex];
-        if (sceneSuggestion) {
+        const formattedSceneHeading = formatSceneHeading(textContent);
+        if (formattedSceneHeading !== textContent) {
+          setSuggestion({
+            path,
+            suggestion: "Fix Scene Heading Format Issue",
+            replacementText: formattedSceneHeading,
+          });
+          foundSuggestion = true;
+        } else {
+          const randomIndex = Math.floor(Math.random() * predefinedSuggestions.length);
+          const sceneSuggestion = predefinedSuggestions[randomIndex];
           setSuggestion({
             path,
             suggestion: sceneSuggestion,
@@ -39,7 +48,7 @@ export default function ScreenplayEditor() {
       if (textContent !== trimmedText) {
         setSuggestion({
           path,
-          suggestion: "Fixed Formatting issue",
+          suggestion: "Fixed Indentation issue",
           replacementText: trimmedText,
         });
         foundSuggestion = true;
@@ -62,7 +71,7 @@ export default function ScreenplayEditor() {
 
   const acceptSuggestion = () => {
     if (suggestion) {
-      Transforms.setNodes(editor, { children: [{ text: suggestion.replacementText }] }, { at: suggestion.path });
+      Transforms.insertText(editor, suggestion.replacementText, { at: [...suggestion.path, 0] });
       setSuggestion(null);
     }
   };
@@ -75,9 +84,9 @@ export default function ScreenplayEditor() {
   return (
     <>
       {hasHydrated ? (
-        <div className="bg-transparent p-6 sm:p-8 rounded-3xl max-w-4xl mx-auto relative">
+        <div className="bg-transparent flex flex-col justify-center items-center">
           <Slate editor={editor} initialValue={value} onChange={handleChange}>
-            <div className="mb-4 bg-slate-900 flex justify-center items-center gap-3 px-4 py-3 bg-slate-800">
+            <div className="w-[8.5in] mb-4 bg-slate-900 flex justify-center items-center gap-3 px-4 py-3">
               <BlockButton type="scene_heading" icon={<Film size={18} />}>
                 Scene
               </BlockButton>
@@ -94,11 +103,15 @@ export default function ScreenplayEditor() {
 
             <Editable
               renderElement={renderElement}
-              placeholder="Start writing your screenplay..."
               spellCheck
               autoFocus
-              className="min-h-[350px] p-5 text-[15px] font-mono focus:outline-none focus:ring-2 focus:ring-slate-900
-            bg-slate-900 text-slate-200 placeholder-slate-400"
+              className="
+             w-[8.5in] h-[11in] 
+    p-[1in] font-[Courier] text-[12pt] leading-[1.5] 
+    whitespace-pre-wrap overflow-hidden
+    focus:outline-none focus:ring-2 focus:ring-slate-900
+    bg-slate-900 text-slate-200 placeholder-slate-400
+  "
             />
 
             {suggestion && <SuggestionPopup suggestion={suggestion} onAccept={acceptSuggestion} onDismiss={() => setSuggestion(null)} />}
