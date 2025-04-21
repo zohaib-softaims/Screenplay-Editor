@@ -1,7 +1,7 @@
 "use client";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { createEditor, Transforms, Editor, Node, Path, Descendant } from "slate";
-import { Slate, Editable, withReact, RenderElementProps } from "slate-react";
+import { Slate, Editable, withReact, RenderElementProps, ReactEditor } from "slate-react";
 import { withHistory } from "slate-history";
 import { Film, User, MessageSquare, BookOpen } from "lucide-react";
 import BlockButton from "./BlockButton";
@@ -11,13 +11,23 @@ import { predefinedSuggestions } from "../../constants/predefinedSuggestions";
 import { useScreenplayStore } from "../../store/useScreenplayStore";
 import { CustomEditor, ScreenplayElement } from "../../types/editorTypes";
 import Loader from "../global/Loader";
-import { formatSceneHeading } from "../../utils/formatSceneHeading";
 import useScreenSize from "../../hooks/useScreenSize";
+import { useSuggestionDropdown } from "../../hooks/useSuggestionDropdown";
+import SuggestionDropdown from "./SuggestionDropdown";
 
 const ScreenplayEditor = () => {
-  const { value, setValue, setCurrentSelectedLine, suggestion, setSuggestion, hasHydrated, currentSelectedLine } = useScreenplayStore();
+  const { value, setValue, currentSelectedLine, setCurrentSelectedLine, suggestion, setSuggestion, hasHydrated } = useScreenplayStore();
   const editor = useMemo(() => withHistory(withReact(createEditor() as CustomEditor)), []);
   const isSmallScreen = useScreenSize(1000);
+  const { visible, position, options, showDropdown, handleSelect, hideDropdown } = useSuggestionDropdown(editor);
+  const editableRef = useRef(null);
+
+  useEffect(() => {
+    if (currentSelectedLine?.type !== "scene_heading") {
+      hideDropdown();
+    }
+  }, [currentSelectedLine]);
+
   const handleChange = (newValue: Descendant[]) => {
     setValue(newValue);
     let foundSuggestion = false;
@@ -25,26 +35,15 @@ const ScreenplayEditor = () => {
     const processNode = (node: ScreenplayElement, path: Path) => {
       const textContent = Node.string(node);
       const trimmedText = textContent.trim();
-
       if (node.type === "scene_heading") {
-        const formattedSceneHeading = formatSceneHeading(textContent);
-        if (formattedSceneHeading !== textContent) {
-          setSuggestion({
-            path,
-            suggestion: "Fix Scene Heading Format Issue",
-            replacementText: formattedSceneHeading,
-          });
-          foundSuggestion = true;
-        } else {
-          const randomIndex = Math.floor(Math.random() * predefinedSuggestions.length);
-          const sceneSuggestion = predefinedSuggestions[randomIndex];
-          setSuggestion({
-            path,
-            suggestion: sceneSuggestion,
-            replacementText: sceneSuggestion,
-          });
-          foundSuggestion = true;
-        }
+        const randomIndex = Math.floor(Math.random() * predefinedSuggestions.length);
+        const sceneSuggestion = predefinedSuggestions[randomIndex];
+        setSuggestion({
+          path,
+          suggestion: sceneSuggestion,
+          replacementText: sceneSuggestion,
+        });
+        foundSuggestion = true;
       }
       if (textContent !== trimmedText) {
         setSuggestion({
@@ -70,6 +69,28 @@ const ScreenplayEditor = () => {
     }
   };
 
+  const handleSceneHeadingDropdown = (e: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement>) => {
+    if (currentSelectedLine?.type === "scene_heading") {
+      const text = currentSelectedLine.text;
+      const { selection } = editor;
+      const isAtEndOfText = selection && selection.focus.offset === text.length;
+      if (text.trim() === "") {
+        e.preventDefault();
+        showDropdown(["INT.", "EXT.", "INT./EXT.", "EST."], (option) => {
+          Transforms.insertText(editor, option + " ");
+        });
+      } else if (text.endsWith(" -") && isAtEndOfText) {
+        e.preventDefault();
+        showDropdown(["DAY", "NIGHT", "CONTINUOUS", "LATER"], (option) => {
+          Transforms.insertText(editor, " " + option);
+          ReactEditor.focus(editor);
+        });
+      }
+    } else {
+      hideDropdown();
+    }
+  };
+
   const acceptSuggestion = () => {
     if (suggestion) {
       Transforms.insertText(editor, suggestion.replacementText, { at: [...suggestion.path, 0] });
@@ -77,28 +98,17 @@ const ScreenplayEditor = () => {
     }
   };
 
+  const preventNextLine = (e: React.KeyboardEvent<HTMLElement>) => {
+    const editor = editableRef.current;
+    if (editor && e.key == "Enter" && !currentSelectedLine?.text) {
+      e.preventDefault();
+    }
+  };
+
   const renderElement = useCallback((props: RenderElementProps) => {
     const element = props.element as ScreenplayElement;
     return <Element {...props} element={element} />;
   }, []);
-
-  const editableRef = useRef(null);
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
-    const editor = editableRef.current;
-    if (editor) {
-      const { scrollHeight, clientHeight } = editor;
-      if (scrollHeight > clientHeight) {
-        if (e.key !== "Backspace" && e.key !== "Delete") {
-          e.preventDefault();
-          alert("Page Ended!!!");
-        }
-      }
-      if (e.key == "Enter" && !currentSelectedLine?.text) {
-        e.preventDefault();
-      }
-    }
-  };
 
   return (
     <>
@@ -129,7 +139,9 @@ const ScreenplayEditor = () => {
 
                 <Editable
                   ref={editableRef}
-                  onKeyDown={handleKeyDown}
+                  onKeyDown={preventNextLine}
+                  onKeyUp={handleSceneHeadingDropdown}
+                  onClick={handleSceneHeadingDropdown}
                   renderElement={renderElement}
                   spellCheck
                   autoFocus
@@ -141,6 +153,7 @@ const ScreenplayEditor = () => {
                 />
 
                 {suggestion && <SuggestionPopup suggestion={suggestion} onAccept={acceptSuggestion} onDismiss={() => setSuggestion(null)} />}
+                {visible && position && <SuggestionDropdown position={position} options={options} onSelect={handleSelect} />}
               </Slate>
             </div>
           ) : (
