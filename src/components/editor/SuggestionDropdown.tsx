@@ -1,20 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 
-const SuggestionDropdown = ({
-  position,
-  options,
-  onSelect,
-  onClose, // optional if you want to close it with Escape
-}: {
-  position: { top: number; left: number };
-  options: string[];
-  onSelect: (option: string) => void;
-  onClose?: () => void;
-}) => {
+const SuggestionDropdown = ({ position, options, onSelect, onClose }: { position: { top: number; left: number }; options: string[]; onSelect: (option: string) => void; onClose?: () => void }) => {
   const [focusedIndex, setFocusedIndex] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Focus the dropdown container when it appears
   useEffect(() => {
     dropdownRef.current?.focus();
   }, []);
