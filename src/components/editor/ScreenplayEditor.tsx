@@ -134,9 +134,9 @@ const ScreenplayEditor = () => {
                   spellCheck
                   autoFocus
                   className="
-                    w-[8.5in] h-[11in] p-[1in] font-[Courier] text-[12pt] leading-[1.5] 
-                    whitespace-pre-wrap overflow-hidden
-                    focus:outline-none focus:ring-2 focus:ring-slate-900 bg-slate-900 text-slate-200 placeholder-slate-400
+                  w-[8.5in] h-[11in] pl-[1.5in] pr-[1in] py-[1in] font-[Courier] text-[12pt]
+                  whitespace-pre-wrap overflow-hidden leading-[1.15] focus:outline-none bg-slate-900
+                  text-slate-200 placeholder-slate-400
                   "
                 />
 
