@@ -26,7 +26,7 @@ const ScreenplayEditor = () => {
     if (currentSelectedLine?.type !== "scene_heading") {
       hideDropdown();
     }
-  }, [currentSelectedLine]);
+  }, [currentSelectedLine, hideDropdown]);
 
   const handleChange = (newValue: Descendant[]) => {
     setValue(newValue);
