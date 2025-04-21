@@ -15,7 +15,7 @@ const BlockButton = ({ type, children, icon }: { type: string; children: string;
           mode: "lowest",
         });
       }}
-      className={`flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-md text-[12px] font-medium transition-all duration-150
+      className={`w-20 flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-md text-[12px] font-medium transition-all duration-150
     ${isSelected ? "bg-white text-slate-900 ring-2 ring-slate-300" : "bg-slate-700 text-slate-200 hover:bg-slate-600"}
     focus:outline-none focus:ring-2 focus:ring-slate-300`}
     >

@@ -100,7 +100,13 @@ const ScreenplayEditor = () => {
 
   const preventNextLine = (e: React.KeyboardEvent<HTMLElement>) => {
     const editor = editableRef.current;
-    if (editor && e.key == "Enter" && !currentSelectedLine?.text) {
+    if (!editor) return;
+    const { scrollHeight, clientHeight } = editor;
+    if (e.key == "Enter" && !currentSelectedLine?.text) {
+      e.preventDefault();
+      return;
+    }
+    if (e.key == "Enter" && scrollHeight > clientHeight) {
       e.preventDefault();
     }
   };
@@ -122,19 +128,22 @@ const ScreenplayEditor = () => {
           {hasHydrated ? (
             <div className="bg-transparent flex flex-col justify-center items-center">
               <Slate editor={editor} initialValue={value} onChange={handleChange}>
-                <div className="w-[8.5in] mb-4 bg-slate-900 flex justify-center items-center gap-3 px-4 py-3">
-                  <BlockButton type="scene_heading" icon={<Film size={18} />}>
-                    Scene
-                  </BlockButton>
-                  <BlockButton type="action" icon={<BookOpen size={18} />}>
-                    Action
-                  </BlockButton>
-                  <BlockButton type="character" icon={<User size={18} />}>
-                    Character
-                  </BlockButton>
-                  <BlockButton type="dialogue" icon={<MessageSquare size={18} />}>
-                    Dialogue
-                  </BlockButton>
+                <div className="w-full sticky top-0 z-50 bg-opacity-90 backdrop-blur-lg border-b border-slate-700 mb-4 bg-slate-900 flex justify-between items-center px-4 py-8">
+                  <h1 className="text-2xl font-bold text-slate-100 tracking-wide">🎬 Screenplay Editor</h1>
+                  <div className="flex gap-3 absolute left-1/2 transform -translate-x-1/2">
+                    <BlockButton type="scene_heading" icon={<Film size={18} />}>
+                      Scene
+                    </BlockButton>
+                    <BlockButton type="action" icon={<BookOpen size={18} />}>
+                      Action
+                    </BlockButton>
+                    <BlockButton type="character" icon={<User size={18} />}>
+                      Character
+                    </BlockButton>
+                    <BlockButton type="dialogue" icon={<MessageSquare size={18} />}>
+                      Dialogue
+                    </BlockButton>
+                  </div>
                 </div>
 
                 <Editable
@@ -148,7 +157,7 @@ const ScreenplayEditor = () => {
                   className="
                   w-[8.5in] h-[11in] pl-[1.5in] pr-[1in] py-[1in] font-[Courier] text-[12pt]
                   whitespace-pre-wrap overflow-hidden leading-[1.15] focus:outline-none bg-slate-900
-                  text-slate-200 placeholder-slate-400
+                  text-slate-200 placeholder-slate-400 border border-slate-700 mb-8
                   "
                 />
 

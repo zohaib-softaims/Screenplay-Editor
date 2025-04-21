@@ -29,7 +29,7 @@ const SuggestionDropdown = ({ position, options, onSelect, onClose }: { position
       ref={dropdownRef}
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      className="absolute bg-white text-black border shadow rounded p-2 z-50 focus:outline-none"
+      className="absolute bg-white text-black border shadow rounded p-2 z-10 focus:outline-none"
       style={{ top: position.top, left: position.left }}
     >
       {options.map((option, idx) => (
