@@ -14,7 +14,7 @@ import Loader from "../global/Loader";
 import useScreenSize from "../../hooks/useScreenSize";
 import { useSuggestionDropdown } from "../../hooks/useSuggestionDropdown";
 import SuggestionDropdown from "./SuggestionDropdown";
-
+import { maxCharacterLengths } from "../../constants/maxCharacterLengths";
 const ScreenplayEditor = () => {
   const { value, setValue, currentSelectedLine, setCurrentSelectedLine, suggestion, setSuggestion, hasHydrated } = useScreenplayStore();
   const editor = useMemo(() => withHistory(withReact(createEditor() as CustomEditor)), []);
@@ -100,7 +100,9 @@ const ScreenplayEditor = () => {
 
   const preventNextLine = (e: React.KeyboardEvent<HTMLElement>) => {
     const editor = editableRef.current;
-    if (!editor) return;
+    if (e.key === "Backspace" || e.key === "Delete" || (e.ctrlKey && e.key === "a") || !editor) {
+      return;
+    }
     const { scrollHeight, clientHeight } = editor;
     if (e.key == "Enter" && !currentSelectedLine?.text) {
       e.preventDefault();
@@ -108,6 +110,14 @@ const ScreenplayEditor = () => {
     }
     if (e.key == "Enter" && scrollHeight > clientHeight) {
       e.preventDefault();
+    }
+    if (currentSelectedLine && currentSelectedLine.type in maxCharacterLengths) {
+      const maxLength = maxCharacterLengths[currentSelectedLine.type as keyof typeof maxCharacterLengths];
+      if (currentSelectedLine.text.length % maxLength === 0 && scrollHeight > clientHeight) {
+        console.log("no space");
+        e.preventDefault();
+        return;
+      }
     }
   };
 
@@ -162,7 +172,7 @@ const ScreenplayEditor = () => {
                 />
 
                 {suggestion && <SuggestionPopup suggestion={suggestion} onAccept={acceptSuggestion} onDismiss={() => setSuggestion(null)} />}
-                {visible && position && <SuggestionDropdown position={position} options={options} onSelect={handleSelect} />}
+                {visible && position && <SuggestionDropdown position={position} options={options} onSelect={handleSelect} onClose={hideDropdown} />}
               </Slate>
             </div>
           ) : (
