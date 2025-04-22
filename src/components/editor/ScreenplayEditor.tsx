@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { createEditor, Transforms, Editor, Node, Path, Descendant } from "slate";
 import { Slate, Editable, withReact, RenderElementProps, ReactEditor } from "slate-react";
 import { withHistory } from "slate-history";
@@ -23,12 +23,6 @@ const ScreenplayEditor = () => {
   const { visible, position, options, showDropdown, handleSelect, hideDropdown } = useSuggestionDropdown(editor);
   const editableRef = useRef(null);
 
-  useEffect(() => {
-    if (currentSelectedLine?.type !== "scene_heading") {
-      hideDropdown();
-    }
-  }, [currentSelectedLine, hideDropdown]);
-
   const handleChange = (newValue: Descendant[]) => {
     setValue(newValue);
     let foundSuggestion = false;
@@ -45,7 +39,10 @@ const ScreenplayEditor = () => {
           replacementText: sceneSuggestion,
         });
         foundSuggestion = true;
+      } else {
+        hideDropdown();
       }
+
       if (textContent !== trimmedText) {
         setSuggestion({
           path,
@@ -56,6 +53,7 @@ const ScreenplayEditor = () => {
       }
       setCurrentSelectedLine({ type: node.type, text: textContent });
     };
+
     Editor.nodes(editor, {
       match: (n) =>
         (n as ScreenplayElement).type === "scene_heading" ||
