@@ -3,18 +3,19 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { createEditor, Transforms, Editor, Node, Path, Descendant } from "slate";
 import { Slate, Editable, withReact, RenderElementProps, ReactEditor } from "slate-react";
 import { withHistory } from "slate-history";
-import { Film, User, MessageSquare, BookOpen } from "lucide-react";
-import BlockButton from "./BlockButton";
+import EditorHeader from "./EditorHeader";
 import Element from "./Element";
+import SmallScreen from "../global/SmallScreen";
 import SuggestionPopup from "./SuggestionPopup";
+import SuggestionDropdown from "./SuggestionDropdown";
 import { predefinedSuggestions } from "../../constants/predefinedSuggestions";
+import { maxCharacterLengths } from "../../constants/maxCharacterLengths";
 import { useScreenplayStore } from "../../store/useScreenplayStore";
 import { CustomEditor, ScreenplayElement } from "../../types/editorTypes";
 import Loader from "../global/Loader";
 import useScreenSize from "../../hooks/useScreenSize";
 import { useSuggestionDropdown } from "../../hooks/useSuggestionDropdown";
-import SuggestionDropdown from "./SuggestionDropdown";
-import { maxCharacterLengths } from "../../constants/maxCharacterLengths";
+
 const ScreenplayEditor = () => {
   const { value, setValue, currentSelectedLine, setCurrentSelectedLine, suggestion, setSuggestion, hasHydrated } = useScreenplayStore();
   const editor = useMemo(() => withHistory(withReact(createEditor() as CustomEditor)), []);
@@ -74,7 +75,8 @@ const ScreenplayEditor = () => {
       const text = currentSelectedLine.text;
       const { selection } = editor;
       const isAtEndOfText = selection && selection.focus.offset === text.length;
-      if (text.trim() === "") {
+
+      if (!text.trim()) {
         e.preventDefault();
         showDropdown(["INT.", "EXT.", "INT./EXT.", "EST."], (option) => {
           Transforms.insertText(editor, option + " ");
@@ -85,6 +87,8 @@ const ScreenplayEditor = () => {
           Transforms.insertText(editor, " " + option);
           ReactEditor.focus(editor);
         });
+      } else {
+        hideDropdown();
       }
     } else {
       hideDropdown();
@@ -104,19 +108,14 @@ const ScreenplayEditor = () => {
       return;
     }
     const { scrollHeight, clientHeight } = editor;
-    if (e.key == "Enter" && !currentSelectedLine?.text) {
+    if (e.key === "Enter" && (!currentSelectedLine?.text || scrollHeight > clientHeight)) {
       e.preventDefault();
       return;
-    }
-    if (e.key == "Enter" && scrollHeight > clientHeight) {
-      e.preventDefault();
     }
     if (currentSelectedLine && currentSelectedLine.type in maxCharacterLengths) {
       const maxLength = maxCharacterLengths[currentSelectedLine.type as keyof typeof maxCharacterLengths];
       if (currentSelectedLine.text.length % maxLength === 0 && scrollHeight > clientHeight) {
-        console.log("no space");
         e.preventDefault();
-        return;
       }
     }
   };
@@ -129,33 +128,13 @@ const ScreenplayEditor = () => {
   return (
     <>
       {isSmallScreen ? (
-        <div className="bg-slate-900 text-center text-white p-10 w-full ">
-          <h2 className="text-xl font-bold">Your screen size is too small for editing</h2>
-          <p>Please increase the window size for a better editing experience.</p>
-        </div>
+        <SmallScreen text={"Please increase the window size for a better editing experience."} />
       ) : (
         <>
           {hasHydrated ? (
             <div className="bg-transparent flex flex-col justify-center items-center">
               <Slate editor={editor} initialValue={value} onChange={handleChange}>
-                <div className="w-full sticky top-0 z-50 bg-opacity-90 backdrop-blur-lg border-b border-slate-700 mb-4 bg-slate-900 flex justify-between items-center px-4 py-8">
-                  <h1 className="text-2xl font-bold text-slate-100 tracking-wide">🎬 Screenplay Editor</h1>
-                  <div className="flex gap-3 absolute left-1/2 transform -translate-x-1/2">
-                    <BlockButton type="scene_heading" icon={<Film size={18} />}>
-                      Scene
-                    </BlockButton>
-                    <BlockButton type="action" icon={<BookOpen size={18} />}>
-                      Action
-                    </BlockButton>
-                    <BlockButton type="character" icon={<User size={18} />}>
-                      Character
-                    </BlockButton>
-                    <BlockButton type="dialogue" icon={<MessageSquare size={18} />}>
-                      Dialogue
-                    </BlockButton>
-                  </div>
-                </div>
-
+                <EditorHeader />
                 <Editable
                   ref={editableRef}
                   onKeyDown={preventNextLine}

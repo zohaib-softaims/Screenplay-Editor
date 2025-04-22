@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
+import { SuggestionDropdownProps } from "../../types/suggestionDropdownTypes";
 
-const SuggestionDropdown = ({ position, options, onSelect, onClose }: { position: { top: number; left: number }; options: string[]; onSelect: (option: string) => void; onClose?: () => void }) => {
+const SuggestionDropdown = ({ position, options, onSelect, onClose }: SuggestionDropdownProps) => {
   const [focusedIndex, setFocusedIndex] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -20,7 +21,7 @@ const SuggestionDropdown = ({ position, options, onSelect, onClose }: { position
       onSelect(options[focusedIndex]);
     } else if (e.key === "Escape") {
       e.preventDefault();
-      onClose?.();
+      onClose();
     }
   };
 
@@ -32,8 +33,8 @@ const SuggestionDropdown = ({ position, options, onSelect, onClose }: { position
       className="absolute bg-white text-black border shadow rounded p-2 z-10 focus:outline-none"
       style={{ top: position.top, left: position.left }}
     >
-      {options.map((option, idx) => (
-        <div key={idx} className={`cursor-pointer p-1 ${idx === focusedIndex ? "bg-gray-300" : "hover:bg-gray-200"}`} onClick={() => onSelect(option)}>
+      {options.map((option, index) => (
+        <div key={index} className={`cursor-pointer p-1 ${index === focusedIndex ? "bg-gray-300" : "hover:bg-gray-200"}`} onClick={() => onSelect(option)}>
           {option}
         </div>
       ))}

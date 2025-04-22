@@ -1,8 +1,9 @@
 import { Transforms, Element as SlateElement } from "slate";
 import { useSlate } from "slate-react";
 import { useScreenplayStore } from "../../store/useScreenplayStore";
-import { ReactNode } from "react";
-const BlockButton = ({ type, children, icon }: { type: string; children: string; icon: ReactNode }) => {
+import { BlockButtonProps } from "../../types/blockButtonTypes";
+
+const BlockButton = ({ type, children, icon }: BlockButtonProps) => {
   const editor = useSlate();
   const { currentSelectedLine } = useScreenplayStore();
   const isSelected = type == currentSelectedLine?.type || false;
